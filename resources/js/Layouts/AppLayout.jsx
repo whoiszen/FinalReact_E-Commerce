@@ -69,6 +69,12 @@ export default function AppLayout({ children }) {
                                     <Link href={route('dashboard')} className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
                                         My Account
                                     </Link>
+                                    <form method="POST" action={route('logout')} className="inline">
+                                        <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
+                                        <button type="submit" className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
+                                            Logout
+                                        </button>
+                                    </form>
                                     {user.is_admin && (
                                         <Link href={route('admin.dashboard')} className="text-xs font-body text-gold-500 hover:text-gold-300 tracking-widest uppercase transition-colors">
                                             Admin ↗
@@ -182,6 +188,12 @@ export default function AppLayout({ children }) {
                                     <Link href={route('dashboard')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Dashboard</Link>
                                     <Link href={route('cart.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Cart ({user.cart_count})</Link>
                                     <Link href={route('wishlist.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Wishlist</Link>
+                                    <form method="POST" action={route('logout')} className="pt-2">
+                                        <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
+                                        <button type="submit" className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase w-full text-left">
+                                            Logout
+                                        </button>
+                                    </form>
                                 </div>
                             ) : (
                                 <div className="border-t border-white/10 pt-3 flex gap-4">
