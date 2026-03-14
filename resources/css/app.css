@@ -1,0 +1,87 @@
+@import url('https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,500;0,600;0,700;1,300;1,400&family=Playfair+Display:wght@400;600;700;800;900&family=Jost:wght@300;400;500;600&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+    :root {
+        --gold: #d4971a;
+        --gold-light: #ecc75e;
+        --gold-dark: #b97812;
+        --obsidian: #0a0a0f;
+        --ivory: #faf8f4;
+    }
+
+    body {
+        font-family: 'Jost', sans-serif;
+        background-color: var(--obsidian);
+        color: var(--ivory);
+        -webkit-font-smoothing: antialiased;
+    }
+
+    h1, h2, h3 {
+        font-family: 'Playfair Display', serif;
+    }
+}
+
+@layer components {
+    .btn-gold {
+        @apply bg-gradient-to-r from-gold-600 via-gold-400 to-gold-600 text-obsidian font-body font-semibold tracking-widest uppercase text-xs px-8 py-3 transition-all duration-300 hover:shadow-lg hover:shadow-gold-500/30 hover:-translate-y-0.5;
+        background-size: 200% auto;
+    }
+    .btn-gold:hover {
+        background-position: right center;
+    }
+
+    .btn-outline-gold {
+        @apply border border-gold-500 text-gold-400 font-body font-medium tracking-widest uppercase text-xs px-8 py-3 transition-all duration-300 hover:bg-gold-500/10 hover:text-gold-300;
+    }
+
+    .card-luxury {
+        @apply bg-gradient-to-b from-white/5 to-white/20 border border-white/10 backdrop-blur-sm;
+    }
+
+    .text-gold-shimmer {
+        background: linear-gradient(90deg, #d4971a, #ecc75e, #f5d989, #ecc75e, #d4971a);
+        background-size: 200% auto;
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+        animation: shimmer 3s linear infinite;
+    }
+
+    .section-divider {
+        @apply w-16 h-px bg-gradient-to-r from-transparent via-gold-500 to-transparent mx-auto my-6;
+    }
+
+    .nav-link-luxury {
+        @apply font-body text-xs tracking-widest uppercase text-white/60 hover:text-gold-400 transition-colors duration-300;
+    }
+
+    .input-luxury {
+        @apply bg-white/5 border border-white/20 text-ivory placeholder-white/30 focus:border-gold-500 focus:ring-1 focus:ring-gold-500/50 font-body text-sm;
+    }
+
+    .badge-status {
+        @apply inline-flex items-center px-2.5 py-0.5 text-xs font-body font-medium tracking-wider uppercase;
+    }
+
+    .table-luxury th {
+        @apply text-xs font-body font-medium tracking-widest uppercase text-gold-500/70 border-b border-white/10 pb-3;
+    }
+
+    .table-luxury td {
+        @apply py-4 border-b border-white/5 text-sm font-body text-white/80;
+    }
+
+    .product-card-hover {
+        @apply transition-all duration-500 hover:-translate-y-2 hover:shadow-2xl hover:shadow-gold-900/30;
+    }
+}
+
+@layer utilities {
+    .scrollbar-luxury::-webkit-scrollbar { width: 4px; }
+    .scrollbar-luxury::-webkit-scrollbar-track { background: transparent; }
+    .scrollbar-luxury::-webkit-scrollbar-thumb { background: #d4971a40; border-radius: 2px; }
+}
