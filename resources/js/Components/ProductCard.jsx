@@ -10,6 +10,10 @@ export default function ProductCard({ product }) {
             router.visit(route('login'));
             return;
         }
+        if (user.is_admin) {
+            router.visit(route('admin.dashboard'));
+            return;
+        }
         router.post(route('cart.add', product.id), { quantity: 1 }, { preserveScroll: true });
     };
 
@@ -17,6 +21,10 @@ export default function ProductCard({ product }) {
         e.preventDefault();
         if (!user) {
             router.visit(route('login'));
+            return;
+        }
+        if (user.is_admin) {
+            router.visit(route('admin.dashboard'));
             return;
         }
         router.post(route('wishlist.toggle', product.id), {}, { preserveScroll: true });
@@ -50,21 +58,23 @@ export default function ProductCard({ product }) {
                 </div>
 
                 {/* Wishlist */}
-                <button onClick={toggleWishlist}
-                    className="absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/70">
-                    <svg className={`w-4 h-4 ${product.is_wishlisted ? 'text-red-400 fill-current' : 'text-white/60'}`}
-                        fill={product.is_wishlisted ? 'currentColor' : 'none'}
-                        stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
-                            d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                    </svg>
-                </button>
+                {!user?.is_admin && (
+                    <button onClick={toggleWishlist}
+                        className="absolute top-3 right-3 w-8 h-8 bg-black/50 backdrop-blur-sm flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-300 hover:bg-black/70">
+                        <svg className={`w-4 h-4 ${product.is_wishlisted ? 'text-red-400 fill-current' : 'text-white/60'}`}
+                            fill={product.is_wishlisted ? 'currentColor' : 'none'}
+                            stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5}
+                                d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                        </svg>
+                    </button>
+                )}
 
                 {/* Quick Add */}
                 <div className="absolute bottom-0 left-0 right-0 translate-y-full group-hover:translate-y-0 transition-transform duration-300">
                     <button onClick={addToCart}
                         className="w-full btn-gold py-3 text-center text-[10px]">
-                        {user ? 'Add to Cart' : 'Sign In to Purchase'}
+                        {user ? (user.is_admin ? 'Admin Preview' : 'Add to Cart') : 'Sign In to Purchase'}
                     </button>
                 </div>
             </div>

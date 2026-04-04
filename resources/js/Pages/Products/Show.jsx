@@ -11,11 +11,13 @@ export default function ProductShow({ product, related }) {
 
     const addToCart = () => {
         if (!user) { router.visit(route('login')); return; }
+        if (user.is_admin) { router.visit(route('admin.dashboard')); return; }
         router.post(route('cart.add', product.id), { quantity: qty }, { preserveScroll: true });
     };
 
     const toggleWishlist = () => {
         if (!user) { router.visit(route('login')); return; }
+        if (user.is_admin) { router.visit(route('admin.dashboard')); return; }
         router.post(route('wishlist.toggle', product.id), {}, { preserveScroll: true });
     };
 
@@ -174,18 +176,20 @@ export default function ProductShow({ product, related }) {
                                     </button>
                                 </div>
                                 <button onClick={addToCart} className="flex-1 btn-gold py-3">
-                                    {user ? 'Add to Cart' : 'Sign In to Purchase'}
+                                    {user ? (user.is_admin ? 'Admin Preview' : 'Add to Cart') : 'Sign In to Purchase'}
                                 </button>
-                                <button onClick={toggleWishlist}
-                                    className={`w-11 h-11 border flex items-center justify-center transition-all duration-200 ${
-                                        product.is_wishlisted
-                                            ? 'border-red-500/50 bg-red-500/10 text-red-400'
-                                            : 'border-white/10 text-white/40 hover:border-gold-500/30 hover:text-gold-400'
-                                    }`}>
-                                    <svg className="w-5 h-5" fill={product.is_wishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
-                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
-                                    </svg>
-                                </button>
+                                {!user?.is_admin && (
+                                    <button onClick={toggleWishlist}
+                                        className={`w-11 h-11 border flex items-center justify-center transition-all duration-200 ${
+                                            product.is_wishlisted
+                                                ? 'border-red-500/50 bg-red-500/10 text-red-400'
+                                                : 'border-white/10 text-white/40 hover:border-gold-500/30 hover:text-gold-400'
+                                        }`}>
+                                        <svg className="w-5 h-5" fill={product.is_wishlisted ? 'currentColor' : 'none'} stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" />
+                                        </svg>
+                                    </button>
+                                )}
                             </div>
                         )}
 

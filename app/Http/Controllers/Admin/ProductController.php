@@ -56,7 +56,7 @@ class ProductController extends Controller
         }
 
         $products = $query->latest()
-            ->paginate(15)
+            ->paginate(10)
             ->withQueryString()
             ->through(fn($p) => $this->format($p));
 

@@ -28,7 +28,7 @@ class WishlistController extends Controller
                 ],
             ]);
 
-        return Inertia::render('Wishlist/Index', compact('items'));
+        return Inertia::render('Wishlists/Index', compact('items'));
     }
 
     public function toggle(Product $product)

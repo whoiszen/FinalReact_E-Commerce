@@ -12,6 +12,10 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        $monthExpression = Order::query()->getConnection()->getDriverName() === 'sqlite'
+            ? "strftime('%Y-%m', created_at)"
+            : "DATE_FORMAT(created_at, '%Y-%m')";
+
         $totalSales     = Order::whereNotIn('status', ['cancelled'])->sum('total');
         $totalOrders    = Order::count();
         $totalCustomers = User::where('is_admin', false)->count();
@@ -38,7 +42,7 @@ class DashboardController extends Controller
                 'created_at'   => $o->created_at->format('M j, Y'),
             ]);
 
-        $salesByMonth = Order::selectRaw("strftime('%Y-%m', created_at) as month, SUM(total) as total")
+        $salesByMonth = Order::selectRaw("{$monthExpression} as month, SUM(total) as total")
             ->whereNotIn('status', ['cancelled'])
             ->where('created_at', '>=', now()->subMonths(6))
             ->groupBy('month')

@@ -64,7 +64,7 @@ class ProductController extends Controller
             $query->orderByDesc('is_featured')->latest();
         }
 
-        $paginated   = $query->paginate(12)->withQueryString();
+        $paginated   = $query->paginate(10)->withQueryString();
         $products    = $paginated->through(fn($p) => $this->format($p, true));
 
         return Inertia::render('Products/Index', [
@@ -101,7 +101,7 @@ class ProductController extends Controller
 
         $products = Product::active()->inStock()
             ->byCategory($category)
-            ->paginate(12)
+            ->paginate(10)
             ->through(fn($p) => $this->format($p, true));
 
         return Inertia::render('Products/Category', [
@@ -117,7 +117,7 @@ class ProductController extends Controller
         $term     = $request->get('q', '');
         $products = Product::active()->inStock()
             ->search($term)
-            ->paginate(12)
+            ->paginate(10)
             ->withQueryString()
             ->through(fn($p) => $this->format($p, true));
 

@@ -35,23 +35,32 @@ function Field({ label, name, type = 'text', data, setData, errors, placeholder,
 export default function ProfileEdit({ mustVerifyEmail, status }) {
     const { auth } = usePage().props;
     const user = auth.user;
+    const dashboardRoute = user.is_admin ? route('admin.dashboard') : route('dashboard');
+    const accountLinks = user.is_admin
+        ? [
+            { label: 'Admin Dashboard', href: route('admin.dashboard'), icon: '◈' },
+            { label: 'Products', href: route('admin.products.index'), icon: '◇' },
+            { label: 'Orders', href: route('admin.orders.index'), icon: '◻' },
+        ]
+        : [
+            { label: 'My Orders', href: route('orders.index'), icon: '◻' },
+            { label: 'Cart', href: route('cart.index'), icon: '◈' },
+            { label: 'Wishlist', href: route('wishlist.index'), icon: '♡' },
+        ];
 
-    // Profile form
     const profileForm = useForm({
-        name:    user.name || '',
-        email:   user.email || '',
-        phone:   user.phone || '',
+        name: user.name || '',
+        email: user.email || '',
+        phone: user.phone || '',
         address: user.address || '',
     });
 
-    // Password form
     const passwordForm = useForm({
-        current_password:      '',
-        password:              '',
+        current_password: '',
+        password: '',
         password_confirmation: '',
     });
 
-    // Delete form
     const deleteForm = useForm({ password: '' });
 
     const updateProfile = (e) => {
@@ -78,12 +87,13 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
             <Head title="Edit Profile" />
 
             <div className="max-w-3xl mx-auto px-6 py-12">
-                {/* Header */}
                 <div className="flex items-center justify-between mb-10">
                     <div>
-                        <Link href={route('dashboard')}
-                            className="text-xs font-body text-white/30 hover:text-gold-400 tracking-widest uppercase transition-colors mb-3 block">
-                            ← Dashboard
+                        <Link
+                            href={dashboardRoute}
+                            className="text-xs font-body text-white/30 hover:text-gold-400 tracking-widest uppercase transition-colors mb-3 block"
+                        >
+                            {user.is_admin ? '← Admin Dashboard' : '← Dashboard'}
                         </Link>
                         <h1 className="font-display text-4xl font-bold text-white">Account Settings</h1>
                     </div>
@@ -93,14 +103,17 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                 </div>
 
                 <div className="space-y-6">
-                    {/* Profile Info */}
                     <Section title="Profile Information" subtitle="Update your name, email and contact details.">
                         {mustVerifyEmail && user.email_verified_at === null && (
                             <div className="mb-5 p-4 border border-yellow-500/20 bg-yellow-950/20">
                                 <p className="text-xs font-body text-yellow-400">
                                     Your email is unverified.{' '}
-                                    <Link href={route('verification.send')} method="post" as="button"
-                                        className="underline hover:text-yellow-300 transition-colors">
+                                    <Link
+                                        href={route('verification.send')}
+                                        method="post"
+                                        as="button"
+                                        className="underline hover:text-yellow-300 transition-colors"
+                                    >
                                         Resend verification email
                                     </Link>
                                 </p>
@@ -113,9 +126,9 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                         )}
                         <form onSubmit={updateProfile} className="space-y-4">
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                <Field label="Full Name"     name="name"    data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} />
-                                <Field label="Email Address" name="email"   data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} type="email" />
-                                <Field label="Phone Number"  name="phone"   data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} placeholder="+63 912 345 6789" />
+                                <Field label="Full Name" name="name" data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} />
+                                <Field label="Email Address" name="email" data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} type="email" />
+                                <Field label="Phone Number" name="phone" data={profileForm.data} setData={profileForm.setData} errors={profileForm.errors} placeholder="+63 912 345 6789" />
                                 <div className="md:col-span-2">
                                     <label className="block text-[10px] font-body tracking-widest uppercase text-white/40 mb-2">
                                         Default Address
@@ -130,15 +143,13 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                 </div>
                             </div>
                             <div className="flex justify-end pt-2">
-                                <button type="submit" disabled={profileForm.processing}
-                                    className="btn-gold px-8 py-3 disabled:opacity-50 text-xs">
+                                <button type="submit" disabled={profileForm.processing} className="btn-gold px-8 py-3 disabled:opacity-50 text-xs">
                                     {profileForm.processing ? 'Saving...' : 'Save Changes'}
                                 </button>
                             </div>
                         </form>
                     </Section>
 
-                    {/* Change Password */}
                     <Section title="Change Password" subtitle="Use a strong password you don't use elsewhere.">
                         {status === 'password-updated' && (
                             <div className="mb-5 text-xs font-body text-green-400 border border-green-500/20 bg-green-950/30 px-4 py-3">
@@ -177,24 +188,24 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                 />
                             </div>
                             <div className="flex justify-end pt-2">
-                                <button type="submit" disabled={passwordForm.processing}
-                                    className="btn-gold px-8 py-3 disabled:opacity-50 text-xs">
+                                <button type="submit" disabled={passwordForm.processing} className="btn-gold px-8 py-3 disabled:opacity-50 text-xs">
                                     {passwordForm.processing ? 'Updating...' : 'Update Password'}
                                 </button>
                             </div>
                         </form>
                     </Section>
 
-                    {/* Quick Links */}
-                    <Section title="Account Actions" subtitle="Manage your orders and shopping preferences.">
+                    <Section
+                        title="Account Actions"
+                        subtitle={user.is_admin ? 'Jump into store management tools.' : 'Manage your orders and shopping preferences.'}
+                    >
                         <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            {[
-                                { label: 'My Orders',   href: route('orders.index'),   icon: '◻' },
-                                { label: 'Cart',        href: route('cart.index'),      icon: '◈' },
-                                { label: 'Wishlist',    href: route('wishlist.index'),  icon: '♡' },
-                            ].map(l => (
-                                <Link key={l.href} href={l.href}
-                                    className="flex items-center gap-3 p-4 border border-white/5 hover:border-gold-500/20 hover:bg-gold-500/5 transition-all duration-200 group">
+                            {accountLinks.map(l => (
+                                <Link
+                                    key={l.href}
+                                    href={l.href}
+                                    className="flex items-center gap-3 p-4 border border-white/5 hover:border-gold-500/20 hover:bg-gold-500/5 transition-all duration-200 group"
+                                >
                                     <span className="text-gold-500/40 font-display group-hover:text-gold-400 transition-colors">{l.icon}</span>
                                     <span className="text-xs font-body tracking-widest uppercase text-white/50 group-hover:text-white/80 transition-colors">{l.label}</span>
                                 </Link>
@@ -202,7 +213,6 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                         </div>
                     </Section>
 
-                    {/* Danger Zone */}
                     <Section title="Danger Zone" subtitle="Permanent actions that cannot be undone.">
                         <div className="border border-red-500/10 bg-red-950/10 p-5">
                             <div className="flex items-start justify-between gap-6">
@@ -226,8 +236,11 @@ export default function ProfileEdit({ mustVerifyEmail, status }) {
                                             <p className="text-[10px] text-red-400 mt-1 font-body">{deleteForm.errors.password}</p>
                                         )}
                                     </div>
-                                    <button type="submit" disabled={deleteForm.processing}
-                                        className="w-full py-2 text-[10px] font-body tracking-widest uppercase text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all disabled:opacity-50">
+                                    <button
+                                        type="submit"
+                                        disabled={deleteForm.processing}
+                                        className="w-full py-2 text-[10px] font-body tracking-widest uppercase text-red-500 border border-red-500/30 hover:bg-red-500/10 transition-all disabled:opacity-50"
+                                    >
                                         {deleteForm.processing ? 'Deleting...' : 'Delete Account'}
                                     </button>
                                 </form>

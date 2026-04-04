@@ -23,33 +23,34 @@ Route::prefix('products')->name('products.')->group(function () {
 
 // ── Authenticated (Customer) ─────────────────────────────
 Route::middleware(['auth', 'verified'])->group(function () {
-
-    Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
-
     Route::get('/profile', [ProfileController::class, 'edit'])->name('profile.edit');
     Route::patch('/profile', [ProfileController::class, 'update'])->name('profile.update');
     Route::delete('/profile', [ProfileController::class, 'destroy'])->name('profile.destroy');
 
-    Route::prefix('cart')->name('cart.')->group(function () {
-        Route::get('/',                    [CartController::class, 'index'])->name('index');
-        Route::post('/add/{product}',      [CartController::class, 'add'])->name('add');
-        Route::patch('/update/{cartItem}', [CartController::class, 'update'])->name('update');
-        Route::delete('/remove/{cartItem}',[CartController::class, 'remove'])->name('remove');
-        Route::delete('/clear',            [CartController::class, 'clear'])->name('clear');
-    });
+    Route::middleware('customer')->group(function () {
+        Route::get('/dashboard', [PageController::class, 'dashboard'])->name('dashboard');
 
-    Route::get('/checkout',         [OrderController::class, 'checkout'])->name('checkout');
-    Route::post('/checkout',        [OrderController::class, 'processCheckout'])->name('checkout.process');
+        Route::prefix('cart')->name('cart.')->group(function () {
+            Route::get('/',                    [CartController::class, 'index'])->name('index');
+            Route::post('/add/{product}',      [CartController::class, 'add'])->name('add');
+            Route::patch('/update/{cartItem}', [CartController::class, 'update'])->name('update');
+            Route::delete('/remove/{cartItem}',[CartController::class, 'remove'])->name('remove');
+            Route::delete('/clear',            [CartController::class, 'clear'])->name('clear');
+        });
 
-    Route::prefix('orders')->name('orders.')->group(function () {
-        Route::get('/',                       [OrderController::class, 'index'])->name('index');
-        Route::get('/{order}',                [OrderController::class, 'show'])->name('show');
-        Route::post('/{order}/cancel',        [OrderController::class, 'cancel'])->name('cancel');
-    });
+        Route::get('/checkout',         [OrderController::class, 'checkout'])->name('checkout');
+        Route::post('/checkout',        [OrderController::class, 'processCheckout'])->name('checkout.process');
 
-    Route::prefix('wishlist')->name('wishlist.')->group(function () {
-        Route::get('/',                       [WishlistController::class, 'index'])->name('index');
-        Route::post('/toggle/{product}',      [WishlistController::class, 'toggle'])->name('toggle');
+        Route::prefix('orders')->name('orders.')->group(function () {
+            Route::get('/',                       [OrderController::class, 'index'])->name('index');
+            Route::get('/{order}',                [OrderController::class, 'show'])->name('show');
+            Route::post('/{order}/cancel',        [OrderController::class, 'cancel'])->name('cancel');
+        });
+
+        Route::prefix('wishlist')->name('wishlist.')->group(function () {
+            Route::get('/',                       [WishlistController::class, 'index'])->name('index');
+            Route::post('/toggle/{product}',      [WishlistController::class, 'toggle'])->name('toggle');
+        });
     });
 });
 

@@ -4,6 +4,7 @@ import { useState, useEffect } from 'react';
 export default function AppLayout({ children }) {
     const { auth, flash } = usePage().props;
     const user = auth?.user;
+    const accountRoute = user?.is_admin ? route('admin.dashboard') : route('dashboard');
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [showFlash, setShowFlash] = useState(!!flash?.success || !!flash?.error);
@@ -66,8 +67,8 @@ export default function AppLayout({ children }) {
                         <div className="flex items-center gap-6">
                             {user ? (
                                 <>
-                                    <Link href={route('dashboard')} className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
-                                        My Account
+                                    <Link href={accountRoute} className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
+                                        {user.is_admin ? 'Admin Home' : 'My Account'}
                                     </Link>
                                     <form method="POST" action={route('logout')} className="inline">
                                         <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
@@ -132,7 +133,7 @@ export default function AppLayout({ children }) {
                                 </svg>
                             </Link>
 
-                            {user && (
+                            {user && !user.is_admin && (
                                 <>
                                     <Link href={route('wishlist.index')} className="text-white/40 hover:text-gold-400 transition-colors p-1">
                                         <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -185,9 +186,15 @@ export default function AppLayout({ children }) {
                             </div>
                             {user ? (
                                 <div className="border-t border-white/10 pt-3 space-y-2">
-                                    <Link href={route('dashboard')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Dashboard</Link>
-                                    <Link href={route('cart.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Cart ({user.cart_count})</Link>
-                                    <Link href={route('wishlist.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Wishlist</Link>
+                                    <Link href={accountRoute} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">
+                                        {user.is_admin ? 'Admin Home' : 'Dashboard'}
+                                    </Link>
+                                    {!user.is_admin && (
+                                        <>
+                                            <Link href={route('cart.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Cart ({user.cart_count})</Link>
+                                            <Link href={route('wishlist.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Wishlist</Link>
+                                        </>
+                                    )}
                                     <form method="POST" action={route('logout')} className="pt-2">
                                         <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
                                         <button type="submit" className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase w-full text-left">
@@ -241,7 +248,7 @@ export default function AppLayout({ children }) {
                                 {[
                                     { label: 'About Us', href: route('about') },
                                     { label: 'Community', href: route('community') },
-                                    { label: 'Track Order', href: user ? route('orders.index') : route('login') },
+                                    { label: 'Track Order', href: user ? (user.is_admin ? route('admin.orders.index') : route('orders.index')) : route('login') },
                                 ].map(l => (
                                     <li key={l.href}>
                                         <Link href={l.href} className="text-sm font-body text-white/40 hover:text-gold-400 transition-colors">{l.label}</Link>
