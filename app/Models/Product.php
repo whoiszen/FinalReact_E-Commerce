@@ -73,6 +73,24 @@ class Product extends Model
         return 0;
     }
 
+    public function getImagesAttribute($value)
+    {
+        $images = (is_array($value) ? $value : json_decode($value, true)) ?: [];
+
+        return array_map(function ($image) {
+            if (empty($image)) {
+                return $image;
+            }
+            if (Str::startsWith($image, ['http://', 'https://'])) {
+                return $image;
+            }
+            if (Str::startsWith($image, ['/storage/', 'storage/'])) {
+                return asset(ltrim($image, '/'));
+            }
+            return asset('storage/' . ltrim($image, '/'));
+        }, $images);
+    }
+
     public function getPrimaryImageAttribute()
     {
         $images = $this->images ?? [];

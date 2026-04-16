@@ -1,10 +1,17 @@
-import { Link, usePage } from '@inertiajs/react';
+import { Link, usePage, router } from '@inertiajs/react';
 import { useState, useEffect } from 'react';
 
 export default function AppLayout({ children }) {
     const { auth, flash } = usePage().props;
     const user = auth?.user;
     const accountRoute = user?.is_admin ? route('admin.dashboard') : route('dashboard');
+
+    const logout = (event) => {
+        if (event?.preventDefault) {
+            event.preventDefault();
+        }
+        router.post(route('logout'));
+    };
     const [mobileOpen, setMobileOpen] = useState(false);
     const [scrolled, setScrolled] = useState(false);
     const [showFlash, setShowFlash] = useState(!!flash?.success || !!flash?.error);
@@ -70,12 +77,10 @@ export default function AppLayout({ children }) {
                                     <Link href={accountRoute} className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
                                         {user.is_admin ? 'Admin Home' : 'My Account'}
                                     </Link>
-                                    <form method="POST" action={route('logout')} className="inline">
-                                        <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
-                                        <button type="submit" className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
-                                            Logout
-                                        </button>
-                                    </form>
+                                    <button type="button" onClick={logout}
+                                        className="text-xs font-body text-white/40 hover:text-gold-400 tracking-widest uppercase transition-colors">
+                                        Logout
+                                    </button>
                                     {user.is_admin && (
                                         <Link href={route('admin.dashboard')} className="text-xs font-body text-gold-500 hover:text-gold-300 tracking-widest uppercase transition-colors">
                                             Admin ↗
@@ -195,12 +200,10 @@ export default function AppLayout({ children }) {
                                             <Link href={route('wishlist.index')} className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase">Wishlist</Link>
                                         </>
                                     )}
-                                    <form method="POST" action={route('logout')} className="pt-2">
-                                        <input type="hidden" name="_token" value={document.querySelector('meta[name="csrf-token"]').getAttribute('content')} />
-                                        <button type="submit" className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase w-full text-left">
-                                            Logout
-                                        </button>
-                                    </form>
+                                    <button type="button" onClick={logout}
+                                        className="block text-sm font-body text-white/60 hover:text-gold-400 py-1 tracking-widest uppercase w-full text-left">
+                                        Logout
+                                    </button>
                                 </div>
                             ) : (
                                 <div className="border-t border-white/10 pt-3 flex gap-4">

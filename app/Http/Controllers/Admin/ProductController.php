@@ -97,7 +97,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
-                $imagePaths[] = Storage::url($path);
+                $imagePaths[] = asset('storage/' . $path);
             }
         }
 
@@ -141,7 +141,7 @@ class ProductController extends Controller
         if ($request->hasFile('images')) {
             foreach ($request->file('images') as $image) {
                 $path = $image->store('products', 'public');
-                $imagePaths[] = Storage::url($path);
+                $imagePaths[] = asset('storage/' . $path);
             }
         }
 

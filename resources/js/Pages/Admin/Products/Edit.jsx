@@ -1,6 +1,90 @@
 import { Head, Link, useForm, router } from '@inertiajs/react';
+import { useEffect, useRef, useState } from 'react';
 import AdminLayout from '@/Layouts/AdminLayout';
-import { useState } from 'react';
+
+const Field = ({ label, name, type = 'text', required, children, hint, options, data, setData, errors }) => {
+    const fieldContent = children || (
+        <input type={type} value={data[name] || ''} onChange={e => setData(name, e.target.value)}
+            className={`input-luxury w-full px-4 py-2.5 ${errors[name] ? 'border-red-500' : ''}`} />
+    );
+    return (
+        <div>
+            <label className="block text-xs font-body tracking-widest uppercase text-white/50 mb-2">
+                {label} {required && <span className="text-gold-500">*</span>}
+            </label>
+            {options ? (
+                <CustomLuxurySelect
+                    name={name}
+                    value={data[name] || ''}
+                    onChange={(val) => setData(name, val)}
+                    options={options}
+                    error={errors[name]}
+                    placeholder="Select..."
+                />
+            ) : (
+                fieldContent
+            )}
+            {hint && <p className="text-[10px] text-white/20 mt-1 font-body">{hint}</p>}
+            {errors[name] && !options && <p className="text-xs text-red-400 mt-1 font-body">{errors[name]}</p>}
+        </div>
+    );
+};
+
+const CustomLuxurySelect = ({ name, value, onChange, options, error = '', placeholder = 'Select...' }) => {
+    const [isOpen, setIsOpen] = useState(false);
+    const dropdownRef = useRef(null);
+
+    const selectedOption = options.find(opt => opt.value === value) || { label: placeholder };
+
+    const handleToggle = () => setIsOpen(!isOpen);
+
+    const handleSelect = (optionValue) => {
+        onChange(optionValue);
+        setIsOpen(false);
+    };
+
+    useEffect(() => {
+        const handleClickOutside = (event) => {
+            if (dropdownRef.current && !dropdownRef.current.contains(event.target)) {
+                setIsOpen(false);
+            }
+        };
+        document.addEventListener('mousedown', handleClickOutside);
+        return () => document.removeEventListener('mousedown', handleClickOutside);
+    }, []);
+
+    return (
+        <div className={`relative ${error ? 'mb-6' : ''}`} ref={dropdownRef}>
+            <button
+                type="button"
+                onClick={handleToggle}
+                className={`input-luxury w-full px-4 py-2.5 flex items-center justify-between ${error ? 'border-red-500' : ''}`}
+                aria-expanded={isOpen}
+            >
+                <span className="truncate">{selectedOption.label}</span>
+                <svg className={`w-4 h-4 transition-transform ${isOpen ? 'rotate-180' : ''}`} fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" />
+                </svg>
+            </button>
+            {isOpen && (
+                <ul className="absolute z-20 w-full mt-1 bg-white/10 border border-white/20 backdrop-blur-sm rounded-lg shadow-lg max-h-60 overflow-auto">
+                    {options.map((option) => (
+                        <li key={option.value}>
+                            <button
+                                type="button"
+                                onClick={() => handleSelect(option.value)}
+                                className="w-full px-4 py-2.5 text-left text-sm font-body text-ivory hover:bg-white/20 hover:text-gold-400 transition-colors first:rounded-t-lg last:rounded-b-lg"
+                            >
+                                {option.label}
+                            </button>
+                        </li>
+                    ))}
+                </ul>
+            )}
+            {error && <p className="text-xs text-red-400 mt-1 font-body">{error}</p>}
+        </div>
+    );
+};
 
 function ProductForm({ product, categories, onSubmit, processing, errors, data, setData, isEdit }) {
     const [previewImages, setPreviewImages] = useState(product?.images || []);
@@ -21,20 +105,6 @@ function ProductForm({ product, categories, onSubmit, processing, errors, data, 
         });
     };
 
-    const Field = ({ label, name, type = 'text', required, children, hint }) => (
-        <div>
-            <label className="block text-xs font-body tracking-widest uppercase text-white/50 mb-2">
-                {label} {required && <span className="text-gold-500">*</span>}
-            </label>
-            {children || (
-                <input type={type} value={data[name] || ''} onChange={e => setData(name, e.target.value)}
-                    className={`input-luxury w-full px-4 py-2.5 ${errors[name] ? 'border-red-500' : ''}`} />
-            )}
-            {hint && <p className="text-[10px] text-white/20 mt-1 font-body">{hint}</p>}
-            {errors[name] && <p className="text-xs text-red-400 mt-1 font-body">{errors[name]}</p>}
-        </div>
-    );
-
     return (
         <form onSubmit={onSubmit} encType="multipart/form-data">
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -43,10 +113,10 @@ function ProductForm({ product, categories, onSubmit, processing, errors, data, 
                     <div className="card-luxury p-6">
                         <h3 className="font-display text-base font-semibold text-white mb-5">Product Details</h3>
                         <div className="space-y-4">
-                            <Field label="Product Name" name="name" required />
-                            <Field label="Short Description" name="short_description"
+                            <Field label="Product Name" name="name" required data={data} setData={setData} errors={errors} />
+                            <Field label="Short Description" name="short_description" data={data} setData={setData} errors={errors}
                                 hint="Brief tagline shown on product cards (max 500 chars)" />
-                            <Field label="Full Description" name="description" required>
+                            <Field label="Full Description" name="description" required data={data} setData={setData} errors={errors}>
                                 <textarea value={data.description || ''} onChange={e => setData('description', e.target.value)} rows={5}
                                     className={`input-luxury w-full px-4 py-2.5 resize-none ${errors.description ? 'border-red-500' : ''}`} />
                                 {errors.description && <p className="text-xs text-red-400 mt-1 font-body">{errors.description}</p>}
@@ -58,10 +128,10 @@ function ProductForm({ product, categories, onSubmit, processing, errors, data, 
                     <div className="card-luxury p-6">
                         <h3 className="font-display text-base font-semibold text-white mb-5">Diamond Specifications</h3>
                         <div className="grid grid-cols-2 gap-4">
-                            <Field label="Material / Stone" name="material" hint="e.g. VS1 Diamond, Round Brilliant" />
-                            <Field label="Carat Weight" name="carat" hint="e.g. 1.2ct, 5.0ct Total" />
-                            <Field label="Metal / Setting" name="metal" hint="e.g. 18K Rose Gold, Platinum" />
-                            <Field label="Certification" name="certification" hint="e.g. GIA Certified, IGI Certified" />
+                            <Field label="Material / Stone" name="material" data={data} setData={setData} errors={errors} hint="e.g. VS1 Diamond, Round Brilliant" />
+                            <Field label="Carat Weight" name="carat" data={data} setData={setData} errors={errors} hint="e.g. 1.2ct, 5.0ct Total" />
+                            <Field label="Metal / Setting" name="metal" data={data} setData={setData} errors={errors} hint="e.g. 18K Rose Gold, Platinum" />
+                            <Field label="Certification" name="certification" data={data} setData={setData} errors={errors} hint="e.g. GIA Certified, IGI Certified" />
                         </div>
                     </div>
 
@@ -104,9 +174,9 @@ function ProductForm({ product, categories, onSubmit, processing, errors, data, 
                     <div className="card-luxury p-6">
                         <h3 className="font-display text-base font-semibold text-white mb-5">Pricing</h3>
                         <div className="space-y-4">
-                            <Field label="Regular Price (₱)" name="price" type="number" required hint="Base price in PHP" />
-                            <Field label="Sale Price (₱)" name="sale_price" type="number" hint="Leave empty if not on sale" />
-                            <Field label="Stock Quantity" name="stock" type="number" required hint="Set to 0 to mark as out of stock" />
+                            <Field label="Regular Price (₱)" name="price" type="number" required data={data} setData={setData} errors={errors} hint="Base price in PHP" />
+                            <Field label="Sale Price (₱)" name="sale_price" type="number" data={data} setData={setData} errors={errors} hint="Leave empty if not on sale" />
+                            <Field label="Stock Quantity" name="stock" type="number" required data={data} setData={setData} errors={errors} hint="Set to 0 to mark as out of stock" />
                         </div>
                     </div>
 
@@ -114,16 +184,15 @@ function ProductForm({ product, categories, onSubmit, processing, errors, data, 
                     <div className="card-luxury p-6">
                         <h3 className="font-display text-base font-semibold text-white mb-5">Organization</h3>
                         <div className="space-y-4">
-                            <Field label="Category" name="category" required>
-                                <select value={data.category || ''} onChange={e => setData('category', e.target.value)}
-                                    className={`input-luxury w-full px-4 py-2.5 ${errors.category ? 'border-red-500' : ''}`}>
-                                    <option value="">Select category...</option>
-                                    {Object.entries(categories).map(([slug, label]) => (
-                                        <option key={slug} value={slug}>{label}</option>
-                                    ))}
-                                </select>
-                                {errors.category && <p className="text-xs text-red-400 mt-1 font-body">{errors.category}</p>}
-                            </Field>
+                            <Field
+                                label="Category"
+                                name="category"
+                                required
+                                data={data}
+                                setData={setData}
+                                errors={errors}
+                                options={Object.entries(categories).map(([slug, label]) => ({value: slug, label}))}
+                            />
 
                             <div className="space-y-3 pt-2">
                                 <label className="flex items-center gap-3 cursor-pointer">
